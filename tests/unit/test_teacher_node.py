@@ -83,3 +83,38 @@ async def test_generate_teaching_script_includes_validation_feedback_on_retry(
 
     assert result is state
     assert result.teaching_script == "Corrected teaching script."
+
+class InitialGenerationFakeProvider:
+    async def generate(self, prompt: str, subject: str) -> str:
+        assert "VALIDATION FEEDBACK" not in prompt
+        return "Initial teaching script."
+
+
+@pytest.mark.asyncio
+async def test_generate_teaching_script_does_not_include_validation_feedback_on_first_attempt(
+    monkeypatch,
+):
+    request = TeachingRequest(
+        topic="Newton's Second Law",
+        subject="physics",
+        education_level="class_11",
+        exam_goal="jee",
+    )
+
+    state = TeachingState(
+        request=request,
+        teaching_prompt="Teach Newton's Second Law for Class 11 JEE.",
+        retry_count=0,
+    )
+
+    fake_provider = InitialGenerationFakeProvider()
+
+    monkeypatch.setattr(
+        "teachhinglish.graph.teacher.GeminiProvider",
+        lambda settings, resolver: fake_provider,
+    )
+
+    result = await generate_teaching_script(state)
+
+    assert result is state
+    assert result.teaching_script == "Initial teaching script."
