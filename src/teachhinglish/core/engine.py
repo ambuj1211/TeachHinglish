@@ -1,42 +1,23 @@
 from teachhinglish.core.models import TeachingRequest, TeachingResponse
-from teachhinglish.prompts.base import PromptBuilder
-from teachhinglish.providers.base import LLMProvider
-from teachhinglish.subjects.registry import get_subject_profile
+from teachhinglish.graph.state import TeachingState
+from teachhinglish.graph.workflow import build_teaching_graph
 
 
 class TeacherLanguageEngine:
-    """Coordinates request, subject context, prompt and LLM generation."""
+    """Coordinates the complete TeachHinglish teaching workflow."""
 
-    def __init__(
-        self,
-        provider: LLMProvider,
-        prompt_builder: PromptBuilder,
-    ) -> None:
-        self.provider = provider
-        self.prompt_builder = prompt_builder
+    def __init__(self) -> None:
+        self.graph = build_teaching_graph()
 
     async def teach(
         self,
         request: TeachingRequest,
     ) -> TeachingResponse:
-        """Generate a complete teaching script."""
+        """Generate a complete validated teaching script."""
 
-        subject_profile = get_subject_profile(request.subject)
+        state = TeachingState(request=request)
 
-        subject_context = (
-            f"Subject: {subject_profile.display_name}\n"
-            f"Description: {subject_profile.description}"
-        )
-
-        prompt = self.prompt_builder.build(
-            request,
-            subject_context,
-        )
-
-        teaching_script = await self.provider.generate(
-            prompt,
-            request.subject,
-        )
+        final_state = await self.graph.ainvoke(state)
 
         return TeachingResponse(
             topic=request.topic,
@@ -45,5 +26,5 @@ class TeacherLanguageEngine:
             exam_goal=request.exam_goal,
             language=request.language,
             style=request.style,
-            teaching_script=teaching_script,
+            teaching_script=final_state["teaching_script"],
         )

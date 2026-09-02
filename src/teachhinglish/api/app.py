@@ -2,23 +2,10 @@ from fastapi import FastAPI
 
 from teachhinglish.core.engine import TeacherLanguageEngine
 from teachhinglish.core.models import TeachingRequest, TeachingResponse
-from teachhinglish.core.settings import get_settings
-from teachhinglish.prompts.teaching import TeachingPromptBuilder
-from teachhinglish.providers.gemini import GeminiProvider
-from teachhinglish.providers.gemini_key_resolver import GeminiKeyResolver
 
 
 def create_engine() -> TeacherLanguageEngine:
-    settings = get_settings()
-
-    key_resolver = GeminiKeyResolver(settings)
-    provider = GeminiProvider(settings, key_resolver)
-    prompt_builder = TeachingPromptBuilder()
-
-    return TeacherLanguageEngine(
-        provider=provider,
-        prompt_builder=prompt_builder,
-    )
+    return TeacherLanguageEngine()
 
 
 app = FastAPI(

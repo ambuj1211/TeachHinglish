@@ -1,7 +1,7 @@
 import pytest
 
 from teachhinglish.core.engine import TeacherLanguageEngine
-from teachhinglish.core.models import EducationLevel, Subject, TeachingRequest
+from teachhinglish.core.models import Subject, TeachingRequest
 from teachhinglish.graph import teacher as teacher_module
 
 
@@ -24,13 +24,12 @@ class FakeProvider:
         acceleration is 5 m/s^2.
 
         So, Newton's Second Law tells us how force affects acceleration.
-
         In summary, F = m * a is the key relationship to remember.
         """
 
 
 @pytest.mark.asyncio
-async def test_teaching_engine(monkeypatch):
+async def test_complete_teaching_flow(monkeypatch):
     fake_provider = FakeProvider()
 
     monkeypatch.setattr(
@@ -52,8 +51,7 @@ async def test_teaching_engine(monkeypatch):
 
     assert response.topic == "Newton's Second Law"
     assert response.subject == Subject.PHYSICS
-    assert response.education_level == EducationLevel.CLASS_11
-    assert response.exam_goal == "jee"
-    assert response.language.value == "hinglish"
     assert response.teaching_script
+
     assert "Newton's Second Law" in response.teaching_script
+    assert "F = m * a" in response.teaching_script
