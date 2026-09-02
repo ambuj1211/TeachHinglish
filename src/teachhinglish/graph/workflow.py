@@ -8,10 +8,17 @@ from teachhinglish.graph.teacher import generate_teaching_script
 from teachhinglish.graph.validator import validate_teaching_script
 
 
+MAX_VALIDATION_RETRIES = 2
+
+
 def _validation_route(state: TeachingState) -> str:
     if state.validation_passed:
         return "end"
 
+    if state.retry_count >= MAX_VALIDATION_RETRIES:
+        return "end"
+
+    state.retry_count += 1
     return "retry"
 
 

@@ -6,7 +6,6 @@ from teachhinglish.validation.pipeline import ValidationPipeline
 from teachhinglish.validation.topic_coverage import TopicCoverageValidator
 from teachhinglish.validation.content import ContentValidator
 from teachhinglish.validation.structure import StructureValidator
-from teachhinglish.validation.topic_coverage import TopicCoverageValidator
 
 
 def validate_teaching_script(state: TeachingState) -> TeachingState:
@@ -30,6 +29,9 @@ def validate_teaching_script(state: TeachingState) -> TeachingState:
     state.validation_errors = result.errors
     state.validation_passed = result.passed
 
+    if not result.passed:
+        state.retry_count += 1
+        
     return state
 
 

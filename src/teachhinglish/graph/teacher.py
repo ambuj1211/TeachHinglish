@@ -11,8 +11,27 @@ async def generate_teaching_script(state: TeachingState) -> TeachingState:
     resolver = GeminiKeyResolver(settings)
     provider = GeminiProvider(settings, resolver)
 
+    prompt = state.teaching_prompt
+
+    if state.validation_errors:
+        validation_feedback = "\n".join(
+            f"- {error}" for error in state.validation_errors
+        )
+
+        prompt = (
+            f"{prompt}\n\n"
+            "VALIDATION FEEDBACK\n"
+            "The previous teaching script failed validation.\n\n"
+            "PREVIOUS TEACHING SCRIPT\n"
+            f"{state.teaching_script}\n\n"
+            "ERRORS\n"
+            f"{validation_feedback}\n\n"
+            "Do not repeat the validation errors.\n"
+            "Return only the corrected teaching script."
+        )
+
     response = await provider.generate(
-        state.teaching_prompt,
+        prompt,
         state.request.subject.value,
     )
 
