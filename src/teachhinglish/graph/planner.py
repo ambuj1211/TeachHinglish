@@ -1,23 +1,29 @@
 from teachhinglish.core.plan import TeachingPlan
 from teachhinglish.graph.state import TeachingState
+from teachhinglish.subjects.registry import get_subject_profile
 
 
 def plan_teaching(state: TeachingState) -> TeachingState:
     """Create a structured teaching plan from the teaching request."""
 
     request = state.request
+    profile = get_subject_profile(request.subject)
 
     state.plan = TeachingPlan(
         learning_objectives=[
             f"Understand the fundamentals of {request.topic}.",
             f"Explain the key concepts of {request.topic}.",
-            f"Apply the concepts of {request.topic} at the expected {request.education_level.value} level.",
+            (
+                f"Apply the concepts of {request.topic} "
+                f"at the expected {request.education_level.value} level."
+            ),
         ],
         prerequisites=[
             f"Basic knowledge required to understand {request.topic}.",
         ],
         concepts=[
             request.topic,
+            profile.teaching_approach,
         ],
         examples=[
             f"Use a practical example to explain {request.topic}.",

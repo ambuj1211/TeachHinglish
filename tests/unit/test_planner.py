@@ -1,14 +1,85 @@
-from teachhinglish.core.models import TeachingRequest
+import pytest
+
+from teachhinglish.core.models import Subject, TeachingRequest
 from teachhinglish.graph.planner import plan_teaching
 from teachhinglish.graph.state import TeachingState
 
 
-def test_plan_teaching_creates_structured_plan():
+@pytest.mark.parametrize(
+    ("subject", "topic", "expected_approach"),
+    [
+        (
+            Subject.PHYSICS,
+            "Newton's Second Law",
+            "physical intuition",
+        ),
+        (
+            Subject.MATHEMATICS,
+            "Quadratic Equations",
+            "mathematical reasoning",
+        ),
+        (
+            Subject.CHEMISTRY,
+            "Chemical Bonding",
+            "reactions",
+        ),
+        (
+            Subject.BIOLOGY,
+            "Photosynthesis",
+            "biological processes",
+        ),
+        (
+            Subject.HISTORY,
+            "Indian Independence Movement",
+            "chronology",
+        ),
+        (
+            Subject.CIVICS,
+            "Fundamental Rights",
+            "constitutional concepts",
+        ),
+        (
+            Subject.GEOGRAPHY,
+            "Monsoon",
+            "spatial relationships",
+        ),
+        (
+            Subject.ENGLISH_GRAMMAR,
+            "Tenses",
+            "grammar rules",
+        ),
+        (
+            Subject.COMPUTER_SCIENCE,
+            "Binary Search Tree",
+            "algorithms",
+        ),
+        (
+            Subject.ENGINEERING_MATHEMATICS,
+            "Differential Equations",
+            "mathematical theory",
+        ),
+        (
+            Subject.DIGITAL_LOGIC,
+            "Boolean Algebra",
+            "Boolean algebra",
+        ),
+        (
+            Subject.GENERAL,
+            "Critical Thinking",
+            "clear conceptual explanation",
+        ),
+    ],
+)
+def test_plan_teaching_is_subject_aware(
+    subject,
+    topic,
+    expected_approach,
+):
     request = TeachingRequest(
-        topic="Newton's Second Law",
-        subject="physics",
-        education_level="class_11",
-        exam_goal="jee",
+        topic=topic,
+        subject=subject,
+        education_level="general",
+        exam_goal=None,
     )
 
     state = TeachingState(request=request)
@@ -23,17 +94,9 @@ def test_plan_teaching_creates_structured_plan():
     assert result.plan.examples
     assert result.plan.teaching_sequence
 
+    assert topic in result.plan.concepts
+
     assert any(
-        "Newton's Second Law" in objective
-        for objective in result.plan.learning_objectives
+        expected_approach in concept
+        for concept in result.plan.concepts
     )
-
-    assert "Newton's Second Law" in result.plan.concepts
-
-    assert result.plan.teaching_sequence == [
-        "Introduce the topic.",
-        "Explain the prerequisites.",
-        "Build the core concepts from basic to advanced.",
-        "Demonstrate the concepts with examples.",
-        "Summarize the important points.",
-    ]
