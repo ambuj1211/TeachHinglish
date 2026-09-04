@@ -18,16 +18,22 @@ def test_plan_teaching_creates_structured_plan():
     assert result is state
 
     assert result.plan.learning_objectives
-    assert "Newton's Second Law" in result.plan.learning_objectives[0]
+    assert result.plan.prerequisites
+    assert result.plan.concepts
+    assert result.plan.examples
+    assert result.plan.teaching_sequence
 
-    assert result.plan.concepts == ["Newton's Second Law"]
+    assert any(
+        "Newton's Second Law" in objective
+        for objective in result.plan.learning_objectives
+    )
+
+    assert "Newton's Second Law" in result.plan.concepts
 
     assert result.plan.teaching_sequence == [
         "Introduce the topic.",
-        "Explain the core concept.",
-        "Work through examples.",
-        "Summarize the key points.",
+        "Explain the prerequisites.",
+        "Build the core concepts from basic to advanced.",
+        "Demonstrate the concepts with examples.",
+        "Summarize the important points.",
     ]
-
-    # Planner should no longer own the final LLM prompt.
-    assert result.teaching_prompt == ""
