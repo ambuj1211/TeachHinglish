@@ -1,11 +1,17 @@
 from teachhinglish.core.models import EducationLevel, TeachingRequest
+from teachhinglish.core.plan import TeachingPlan
 from teachhinglish.prompts.base import PromptBuilder
 
 
 class TeachingPromptBuilder(PromptBuilder):
     """Build prompts for educational video-style teaching."""
 
-    def build(self, request: TeachingRequest, subject_context: str) -> str:
+    def build(
+        self,
+        request: TeachingRequest,
+        subject_context: str,
+        plan: TeachingPlan | None = None,
+    ) -> str:
         greeting = self._greeting_instruction(request)
 
         return f"""
@@ -21,6 +27,9 @@ STUDENT PROFILE
 
 SUBJECT CONTEXT
 {subject_context}
+
+PLAN
+{self._format_plan(plan)}
 
 OPENING STYLE
 {greeting}
@@ -98,4 +107,26 @@ Then transition naturally with:
 
 Do not use this school-style greeting for B.Tech, M.Tech, GATE,
 or professional learners.
+""".strip()
+
+    @staticmethod
+    def _format_plan(plan: TeachingPlan | None) -> str:
+        if plan is None:
+            return "No structured teaching plan provided."
+
+        return f"""
+LEARNING OBJECTIVES
+{chr(10).join(f"- {item}" for item in plan.learning_objectives) or "- None specified"}
+
+PREREQUISITES
+{chr(10).join(f"- {item}" for item in plan.prerequisites) or "- None specified"}
+
+CONCEPTS
+{chr(10).join(f"- {item}" for item in plan.concepts) or "- None specified"}
+
+EXAMPLES
+{chr(10).join(f"- {item}" for item in plan.examples) or "- None specified"}
+
+TEACHING SEQUENCE
+{chr(10).join(f"{index}. {item}" for index, item in enumerate(plan.teaching_sequence, 1)) or "1. No sequence specified."}
 """.strip()

@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 
 from teachhinglish.core.models import TeachingRequest
+from teachhinglish.core.plan import TeachingPlan
 
 
 @dataclass
@@ -9,6 +10,7 @@ class TeachingState:
 
     request: TeachingRequest
 
+    plan: TeachingPlan = field(default_factory=TeachingPlan)
     subject_context: str = ""
     teaching_prompt: str = ""
     teaching_script: str = ""

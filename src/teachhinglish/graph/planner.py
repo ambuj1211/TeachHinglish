@@ -1,14 +1,25 @@
+from teachhinglish.core.plan import TeachingPlan
 from teachhinglish.graph.state import TeachingState
 
 
 def plan_teaching(state: TeachingState) -> TeachingState:
-    """Prepare the teaching plan from the request."""
+    """Prepare a structured teaching plan from the request."""
 
-    state.teaching_prompt = (
-        f"Teach {state.request.topic} for "
-        f"{state.request.education_level.value} level "
-        f"with {state.request.exam_goal or 'general learning'} "
-        f"as the goal."
+    state.plan = TeachingPlan(
+        learning_objectives=[
+            f"Understand the concept of {state.request.topic}.",
+        ],
+        prerequisites=[],
+        concepts=[
+            state.request.topic,
+        ],
+        examples=[],
+        teaching_sequence=[
+            "Introduce the topic.",
+            "Explain the core concept.",
+            "Work through examples.",
+            "Summarize the key points.",
+        ],
     )
 
     return state

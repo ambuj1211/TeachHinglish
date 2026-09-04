@@ -1,6 +1,6 @@
 from teachhinglish.core.models import TeachingRequest
 from teachhinglish.prompts.teaching import TeachingPromptBuilder
-
+from teachhinglish.core.plan import TeachingPlan
 
 def test_school_prompt_uses_school_greeting():
     request = TeachingRequest(
@@ -75,3 +75,36 @@ def test_prompt_contains_student_context():
     assert "mtech" in prompt
     assert "advanced_learning" in prompt
     assert "Attention mechanisms" in prompt
+
+def test_prompt_contains_teaching_plan():
+    request = TeachingRequest(
+        topic="Newton's Second Law",
+        subject="physics",
+        education_level="class_11",
+        exam_goal="jee",
+    )
+
+    plan = TeachingPlan(
+        learning_objectives=["Understand the relationship between force and acceleration."],
+        prerequisites=["Basic understanding of force and mass."],
+        concepts=["Newton's Second Law"],
+        examples=["A 10 N force acting on a 2 kg mass."],
+        teaching_sequence=[
+            "Introduce the law.",
+            "Explain F = ma.",
+            "Solve a numerical example.",
+        ],
+    )
+
+    prompt = TeachingPromptBuilder().build(
+        request,
+        "Physics context",
+        plan,
+    )
+
+    assert "LEARNING OBJECTIVES" in prompt
+    assert "Understand the relationship between force and acceleration." in prompt
+    assert "Basic understanding of force and mass." in prompt
+    assert "Newton's Second Law" in prompt
+    assert "A 10 N force acting on a 2 kg mass." in prompt
+    assert "Explain F = ma." in prompt

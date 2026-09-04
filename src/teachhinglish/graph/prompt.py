@@ -10,6 +10,7 @@ def build_teaching_prompt(state: TeachingState) -> TeachingState:
     state.teaching_prompt = builder.build(
         state.request,
         state.subject_context,
+        state.plan,
     )
 
     return state
