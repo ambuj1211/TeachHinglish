@@ -108,3 +108,34 @@ def test_prompt_contains_teaching_plan():
     assert "Newton's Second Law" in prompt
     assert "A 10 N force acting on a 2 kg mass." in prompt
     assert "Explain F = ma." in prompt
+
+def test_prompt_contains_subject_teaching_guidance():
+    request = TeachingRequest(
+        topic="Newton's Second Law",
+        subject="physics",
+        education_level="class_11",
+        exam_goal="jee",
+    )
+
+    prompt = TeachingPromptBuilder().build(request, "Physics context")
+
+    assert "SUBJECT TEACHING GUIDANCE" in prompt
+    assert "physical intuition" in prompt
+    assert "formula or equation" in prompt
+    assert "worked numerical example" in prompt
+    assert "common mistakes" in prompt
+
+def test_prompt_uses_subject_specific_guidance():
+    request = TeachingRequest(
+        topic="Indian Independence Movement",
+        subject="history",
+        education_level="class_10",
+        exam_goal="school",
+    )
+
+    prompt = TeachingPromptBuilder().build(request, "History context")
+
+    assert "chronology" in prompt
+    assert "historical background" in prompt
+    assert "major events" in prompt
+    assert "consequences" in prompt

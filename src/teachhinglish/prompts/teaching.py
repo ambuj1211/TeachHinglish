@@ -1,6 +1,7 @@
 from teachhinglish.core.models import EducationLevel, TeachingRequest
 from teachhinglish.core.plan import TeachingPlan
 from teachhinglish.prompts.base import PromptBuilder
+from teachhinglish.subjects.registry import get_subject_profile
 
 
 class TeachingPromptBuilder(PromptBuilder):
@@ -13,6 +14,7 @@ class TeachingPromptBuilder(PromptBuilder):
         plan: TeachingPlan | None = None,
     ) -> str:
         greeting = self._greeting_instruction(request)
+        profile = get_subject_profile(request.subject)
 
         return f"""
 You are an experienced Indian teacher creating an educational video.
@@ -25,6 +27,13 @@ STUDENT PROFILE
 - Language: {request.language.value}
 - Teaching style: {request.style.value}
 
+SUBJECT TEACHING GUIDANCE
+- Subject: {profile.display_name}
+- Description: {profile.description}
+- Teaching approach: {profile.teaching_approach}
+- Required elements:
+{chr(10).join(f"  - {item}" for item in profile.required_elements) or "  - None specified"}
+
 SUBJECT CONTEXT
 {subject_context}
 
@@ -36,6 +45,7 @@ OPENING STYLE
 
 TEACHING REQUIREMENTS
 - Teach the topic from basic to advanced at the appropriate level.
+- Follow the subject-specific teaching approach and required elements.
 - Explain ideas naturally as an Indian teacher would speak.
 - Use natural conversational Hinglish when the requested language is Hinglish.
 - Keep important technical terms in English where that is natural and educationally useful.
@@ -54,9 +64,10 @@ VIDEO STRUCTURE
 1. Natural opening.
 2. Introduce today's topic.
 3. Explain the concept from basic to advanced.
-4. Give examples where useful.
-5. Highlight important points or common mistakes.
-6. End naturally without discussing the prompt.
+4. Follow the subject-specific teaching approach.
+5. Give examples where useful.
+6. Highlight important points or common mistakes.
+7. End naturally without discussing the prompt.
 
 OUTPUT
 Return only the teaching script.
